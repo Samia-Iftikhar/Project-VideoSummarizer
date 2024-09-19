@@ -193,21 +193,22 @@ def combine_and_summarize(video_path, model_size="medium", language="en"):
       try:
           transcription_text = transcribe_audio(audio_path, model_size, language)
       except Exception as e:
-          transcription_text = ""  # Set to empty string if transcription fails
-
-      # Step 3: Extract text from the multimodal model (e.g., image or video captioning)
-      multimodal_text = summarize_video(video_path, target_fps=0.25)
-
-      # Step 4: Combine the texts (only if transcription is available)
+          transcripted_text = ""  # Set to empty string if transcription fails
+      
+      # Step 3: Summarize the transcripted text
       if transcription_text:
-          combined_text = transcription_text + "\n" + multimodal_text
+            summarized_transcripted_text = "It is said- "+summarize_text(transcription_text)
       else:
-          combined_text = multimodal_text
-
-      # Step 5: Summarize the combined text
-      summarized_text = summarize_text(combined_text)
-
-      return summarized_text
+            summarized_transcripted_text = ""
+      
+      os.remove(audio_path)  # Remove the temporary audio file
+      
+      # Step 4: Extract text from the multimodal model 
+      multimodal_text = summarize_video(video_path, target_fps=0.25)
+   
+      # Step 5: Combine transcripted text and multimodal text
+      combined_text =  multimodal_text + "\n" + summarized_transcripted_text
+      return combined_text
     except RuntimeError as e:
       if "CUDA out of memory" in str(e):
         return "CUDA out of memory error occurred. Try a shorter video."
